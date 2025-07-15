@@ -262,22 +262,22 @@ sum_bancova_meds <- summary(b_ancova_meds)
 
 sd_bancova_neu <- draws_bancova_neu %>% 
   select(b_Intercept:sigma) %>% 
-  map_dbl(sd) %>% 
+  sapply(sd) %>% 
   as_tibble() %>% 
   rename("SD" = "value")
 sd_bancova_scep <- draws_bancova_scep %>% 
   select(b_Intercept:sigma) %>% 
-  map_dbl(sd) %>% 
+  sapply(sd) %>% 
   as_tibble() %>% 
   rename("SD" = "value")
 sd_bancova_enth <- draws_bancova_enth %>% 
-  select(b_Intercept:sigma) %>% 
-  map_dbl(sd) %>% 
+  select(b_Intercept:sigma) %>%
+  sapply(sd) %>%
   as_tibble() %>% 
   rename("SD" = "value")
 sd_bancova_meds <- draws_bancova_meds %>% 
   select(b_Intercept:sigma) %>% 
-  map_dbl(sd) %>% 
+  sapply(sd) %>% 
   as_tibble() %>% 
   rename("SD" = "value")
 
