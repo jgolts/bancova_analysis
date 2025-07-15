@@ -436,5 +436,3 @@ plotPosteriorCDF(draws_neu_long, "b_group")
 plotPosteriorCDF(draws_scep_long, "b_group")
 plotPosteriorCDF(draws_enth_long, "b_group")
 plotPosteriorCDF(draws_meds_long, "b_group")
-
-plotPosterior(draws_meds_long, "sigma")
