@@ -113,10 +113,10 @@ x_vals_neu <- seq(0 - 4 * 100, 0 + 4 * 100, length.out = 1000)
 df_neu <- tibble(x = x_vals_neu, y = dnorm(x_vals_neu, mean = 0, sd = 100))
 
 x_vals_scep <- seq(0 - 4 * 2.5, 0 + 4 * 2.5, length.out = 1000)
-df_scep <- tibble(x = x_vals_scep, y = dnorm(x_vals_scep, mean = 0, sd = 0.5))
+df_scep <- tibble(x = x_vals_scep, y = dnorm(x_vals_scep, mean = 0, sd = 2.5))
 
 x_vals_enth <- seq(-5 - 4 * 2.5, -5 + 4 * 2.5, length.out = 1000)
-df_enth <- tibble(x = x_vals_enth, y = dnorm(x_vals_enth, mean = -5, sd = 0.5))
+df_enth <- tibble(x = x_vals_enth, y = dnorm(x_vals_enth, mean = -10, sd = 2.5))
 
 x_vals_sigma <- seq(0, 8 * 10, length.out = 1000)
 df_sigma <- tibble(x = x_vals_sigma, y = dcauchy(x_vals_sigma, 0, 8))
