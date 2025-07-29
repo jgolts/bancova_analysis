@@ -142,7 +142,7 @@ priorplot_sigma <- ggplot(df_sigma, aes(x = x, y = y)) +
        y = "Probability density")
 
 priorplots <- gridExtra::arrangeGrob(priorplot_neu, priorplot_scep,
-                                     priorplot_enth, priorplot_sigma)
+                                     priorplot_sigma, priorplot_enth)
 
 ggsave(
   "priorsplot.png",
