@@ -141,8 +141,16 @@ priorplot_sigma <- ggplot(df_sigma, aes(x = x, y = y)) +
   labs(x = "SD of model outcome",
        y = "Probability density")
 
-gridExtra::grid.arrange(priorplot_neu, priorplot_scep, priorplot_enth,
-                        priorplot_sigma, nrow = 2)
+priorplots <- gridExtra::arrangeGrob(priorplot_neu, priorplot_scep,
+                                     priorplot_enth, priorplot_sigma)
+
+ggsave(
+  "priorsplot.png",
+  priorplots,
+  heigh = 4,
+  width = 6.5,
+  dpi = 800
+)
 
 ## brms model fitting
 
