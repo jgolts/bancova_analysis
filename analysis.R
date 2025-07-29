@@ -41,6 +41,9 @@ fancova1 <- lm(pk5 ~ pk1 + group, data = vickers_score)
 fancova2 <- lm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                + chronicity, data = vickers_meds)
 
+fancova3 <- lm(pk5 ~ pk1 + group + age + sex + migraine
+                           + chronicity + pk1:group, data = vickers)
+
 lmm <- lmer(score ~ time * group + (1 | id), data = vickers_score_long)
 
 ## Frequentist results tables
@@ -112,34 +115,37 @@ sd(vickers_meds$painmedspk5)
 x_vals_neu <- seq(0 - 4 * 100, 0 + 4 * 100, length.out = 1000)
 df_neu <- tibble(x = x_vals_neu, y = dnorm(x_vals_neu, mean = 0, sd = 100))
 
-x_vals_scep <- seq(0 - 4 * 0.5, 0 + 4 * 0.5, length.out = 1000)
+x_vals_scep <- seq(0 - 4 * 2.5, 0 + 4 * 2.5, length.out = 1000)
 df_scep <- tibble(x = x_vals_scep, y = dnorm(x_vals_scep, mean = 0, sd = 0.5))
 
-x_vals_enth <- seq(-5 - 4 * 0.5, -5 + 4 * 0.5, length.out = 1000)
+x_vals_enth <- seq(-5 - 4 * 2.5, -5 + 4 * 2.5, length.out = 1000)
 df_enth <- tibble(x = x_vals_enth, y = dnorm(x_vals_enth, mean = -5, sd = 0.5))
 
-x_vals_sigma <- seq(0, 10 * 10, length.out = 1000)
-df_sigma <- tibble(x = x_vals_sigma, y = dcauchy(x_vals_sigma, 0, 10))
+x_vals_sigma <- seq(0, 8 * 10, length.out = 1000)
+df_sigma <- tibble(x = x_vals_sigma, y = dcauchy(x_vals_sigma, 0, 8))
 
-ggplot(df_neu, aes(x = x, y = y)) +
+priorplot_neu <- ggplot(df_neu, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
   labs(x = "Coefficient",
        y = "Probability density")
 
-ggplot(df_scep, aes(x = x, y = y)) +
+priorplot_scep <- ggplot(df_scep, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
   labs(x = "Treatment effect",
        y = "Probability density")
 
-ggplot(df_enth, aes(x = x, y = y)) +
+priorplot_enth <- ggplot(df_enth, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
   labs(x = "Treatment effect",
        y = "Probability density")
 
-ggplot(df_sigma, aes(x = x, y = y)) +
+priorplot_sigma <- ggplot(df_sigma, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
   labs(x = "SD of model outcome",
        y = "Probability density")
+
+gridExtra::grid.arrange(priorplot_neu, priorplot_scep, priorplot_enth,
+                        priorplot_sigma, nrow = 2)
 
 ## brms model fitting
 
@@ -148,7 +154,7 @@ b_ancova_neu <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
                     prior = c(prior(normal(0, 100), class = "Intercept"),
                               prior(normal(0, 100), class = "b", coef = "pk1"),
                               prior(normal(0, 100), class = "b", coef = "group"),
-                              prior(cauchy(0, 10), class = "sigma")),
+                              prior(cauchy(0, 8), class = "sigma")),
                     seed = 157, chains = 4)
 
 b_ancova_scep <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
@@ -157,7 +163,7 @@ b_ancova_scep <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
                                prior(normal(0, 100), class = "b", coef = "pk1"),
                                prior(normal(0, 0.5), class = "b",
                                      coef = "group"),
-                               prior(cauchy(0, 10), class = "sigma")),
+                               prior(cauchy(0, 8), class = "sigma")),
                      seed = 157, chains = 4)
 
 b_ancova_enth <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
@@ -166,7 +172,7 @@ b_ancova_enth <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
                                prior(normal(0, 100), class = "b", coef = "pk1"),
                                prior(normal(-10, 0.5), class = "b",
                                      coef = "group"),
-                               prior(cauchy(0, 10), class = "sigma")),
+                               prior(cauchy(0, 8), class = "sigma")),
                      seed = 157, chains = 4)
 
 b_ancova_meds <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
@@ -177,7 +183,7 @@ b_ancova_meds <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                                prior(normal(0, 100), class = "b",
                                      coef = "painmedspk1"),
                                prior(normal(0, 100), class = "b", coef = "group"),
-                               prior(cauchy(0, 10), class = "sigma")),
+                               prior(cauchy(0, 8), class = "sigma")),
                      seed = 157, chains = 4)
 
 ## Doubled iters
@@ -188,7 +194,7 @@ b_ancova_neu_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
                                  prior(normal(0, 100), class = "b", coef = "pk1"),
                                  prior(normal(0, 100), class = "b",
                                        coef = "group"),
-                                 prior(cauchy(0, 10), class = "sigma")),
+                                 prior(cauchy(0, 8), class = "sigma")),
                        seed = 157, chains = 4)
 
 b_ancova_scep_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
@@ -197,7 +203,7 @@ b_ancova_scep_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
                                   prior(normal(0, 100), class = "b", coef = "pk1"),
                                   prior(normal(0, 0.5), class = "b",
                                         coef = "group"),
-                                  prior(cauchy(0, 10), class = "sigma")),
+                                  prior(cauchy(0, 8), class = "sigma")),
                         seed = 157, chains = 4)
 
 b_ancova_enth_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
@@ -206,7 +212,7 @@ b_ancova_enth_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
                                   prior(normal(0, 100), class = "b", coef = "pk1"),
                                   prior(normal(-5, 0.5), class = "b",
                                         coef = "group"),
-                                  prior(cauchy(0, 10), class = "sigma")),
+                                  prior(cauchy(0, 8), class = "sigma")),
                         seed = 157, chains = 4)
 
 b_ancova_meds_x2 <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
@@ -217,7 +223,7 @@ b_ancova_meds_x2 <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                                   prior(normal(0, 100), class = "b",
                                         coef = "painmedspk1"),
                                   prior(normal(0, 100), class = "b", coef = "group"),
-                                  prior(cauchy(0, 10), class = "sigma")),
+                                  prior(cauchy(0, 8), class = "sigma")),
                         seed = 157, chains = 4)
 
 ## Diagnostics
@@ -356,7 +362,7 @@ table_meds <- rbind(sum_bancova_meds$fixed, sum_bancova_meds$spec_pars) %>%
          SD = round(SD, 1))%>% 
   select(Coefficient, Estimate, `95% HDPI`, SD, Rhat)
 
-## Summaries just for the Rhat (double iters)
+## Summaries just for the Rhat value (double iters)
 
 summary(b_ancova_neu_x2)
 summary(b_ancova_scep_x2)
