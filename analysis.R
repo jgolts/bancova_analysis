@@ -147,9 +147,9 @@ priorplots <- gridExtra::arrangeGrob(priorplot_neu, priorplot_scep,
 ggsave(
   "priorsplot.png",
   priorplots,
-  heigh = 4,
+  height = 4,
   width = 6.5,
-  dpi = 800
+  dpi = 600
 )
 
 ## brms model fitting
@@ -439,9 +439,40 @@ plotPosteriorCDF <- function(df, param) {
 }
 
 plotPosterior(draws_neu_long, "b_group")
+
+ggsave(
+  "teplot_neu.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 plotPosterior(draws_scep_long, "b_group")
+
+ggsave(
+  "teplot_scep.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 plotPosterior(draws_enth_long, "b_group")
+
+ggsave(
+  "teplot_enth.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 plotPosterior(draws_meds_long, "b_group")
+
+ggsave(
+  "teplot_meds.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
 
 plotPosteriorCDF(draws_neu_long, "b_group")
 plotPosteriorCDF(draws_scep_long, "b_group")
