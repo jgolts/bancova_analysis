@@ -41,9 +41,6 @@ fancova1 <- lm(pk5 ~ pk1 + group, data = vickers_score)
 fancova2 <- lm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                + chronicity, data = vickers_meds)
 
-fancova3 <- lm(pk5 ~ pk1 + group + age + sex + migraine
-                           + chronicity + pk1:group, data = vickers)
-
 lmm <- lmer(score ~ time * group + (1 | id), data = vickers_score_long)
 
 ## Frequentist results tables
