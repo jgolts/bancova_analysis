@@ -251,28 +251,152 @@ b_ancova_meds_x2 <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
 ## Traces
 
 mcmc_plot(b_ancova_neu, type = "trace")
+
+ggsave(
+  "traceplot_neu.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_scep, type = "trace")
+
+ggsave(
+  "traceplot_scep.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_enth, type = "trace")
+
+ggsave(
+  "traceplot_enth.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_meds, type = "trace")
 
+ggsave(
+  "traceplot_meds.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_neu_x2, type = "trace")
+
+ggsave(
+  "traceplot_neu_x2.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_scep_x2, type = "trace")
+
+ggsave(
+  "traceplot_scep_x2.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_enth_x2, type = "trace")
+
+ggsave(
+  "traceplot_enth_x2.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_meds_x2, type = "trace")
+
+ggsave(
+  "traceplot_meds_x2.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
 
 ## Histograms
 
 mcmc_plot(b_ancova_neu, type = "hist")
+
+ggsave(
+  "histplot_neu.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_scep, type = "hist")
+
+ggsave(
+  "histplot_scep.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_enth, type = "hist")
+
+ggsave(
+  "histplot_enth.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_meds, type = "hist")
+
+ggsave(
+  "histplot_meds.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
 
 ## Autocorrelation
 
 mcmc_plot(b_ancova_neu, type = "acf")
+
+ggsave(
+  "acfplot_neu.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_scep, type = "acf")
+
+ggsave(
+  "acfplot_scep.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_enth, type = "acf")
+
+ggsave(
+  "acfplot_enth.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
 mcmc_plot(b_ancova_meds, type = "acf")
+
+ggsave(
+  "acfplot_meds.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
 
 ## Bayesian results tables
 
