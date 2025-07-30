@@ -41,6 +41,8 @@ fancova1 <- lm(pk5 ~ pk1 + group, data = vickers_score)
 fancova2 <- lm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                + chronicity, data = vickers_meds)
 
+fancova_inter <- lm(pk5 ~ pk1 + group + pk1:group, data = vickers_score)
+
 lmm <- lmer(score ~ time * group + (1 | id), data = vickers_score_long)
 
 ## Frequentist results tables
@@ -49,6 +51,7 @@ sum_anova <- summary(anova_change)
 
 sum_fancova1 <- summary(fancova1)
 sum_fancova2 <- summary(fancova2)
+sum_fancova_inter <- summary(fancova_inter)
 
 sum_lmm <- summary(lmm, ddf = "Kenward-Roger")
 
@@ -56,6 +59,7 @@ ci_anova <- confint(anova_change)
 
 ci_fancova1 <- confint(fancova1)
 ci_fancova2 <- confint(fancova2)
+ci_fancova_inter <- confint(fancova_inter)
 
 ci_lmm <- model_parameters(lmm, ci_method = "kenward")
 
@@ -84,6 +88,17 @@ table_ancova2 <- bind_cols(sum_fancova2$coefficients, ci_fancova2) %>%
   rename("P-Value" = "Pr(>|t|)") %>%
   mutate(Coefficient = c("Intercept", "pk1", "Group", "Age", "Sex", "Migraine",
                          "Chronicity"),
+         `95% CI` = paste0("(", round(`2.5 %`, 1), ", ",
+                           round(`97.5 %`, 1), ")"),
+         Estimate = round(Estimate, 1),
+         `P-Value` = round(`P-Value`, 4)) %>% 
+  select(Coefficient, Estimate, `P-Value`, `95% CI`)
+
+table_ancova_inter <- bind_cols(sum_fancova_inter$coefficients,
+                                ci_fancova_inter) %>% 
+  tibble() %>% 
+  rename("P-Value" = "Pr(>|t|)") %>%
+  mutate(Coefficient = c("Intercept", "pk1", "Group", "pk1:Group"),
          `95% CI` = paste0("(", round(`2.5 %`, 1), ", ",
                            round(`97.5 %`, 1), ")"),
          Estimate = round(Estimate, 1),
