@@ -464,10 +464,10 @@ table_neu <- rbind(sum_bancova_neu$fixed, sum_bancova_neu$spec_pars) %>%
   mutate(Coefficient = c("Intercept", "pk1", "Group", "sigma"),
          Estimate = round(Estimate, 1),
          Rhat = round(Rhat, 2),
-         `95% HDPI` = paste0("(", round(CI_low, 1), ", ",
+         `95% HDI` = paste0("(", round(CI_low, 1), ", ",
                              round(CI_high, 1), ")"),
          SD = round(SD, 1))%>% 
-  select(Coefficient, Estimate, `95% HDPI`, SD, Rhat)
+  select(Coefficient, Estimate, `95% HDI`, SD, Rhat)
 
 table_scep <- rbind(sum_bancova_scep$fixed, sum_bancova_scep$spec_pars) %>% 
   cbind(ci_bancova_scep) %>%
@@ -476,10 +476,10 @@ table_scep <- rbind(sum_bancova_scep$fixed, sum_bancova_scep$spec_pars) %>%
   mutate(Coefficient = c("Intercept", "pk1", "Group", "sigma"),
          Estimate = round(Estimate, 1),
          Rhat = round(Rhat, 2),
-         `95% HDPI` = paste0("(", round(CI_low, 1), ", ",
+         `95% HDI` = paste0("(", round(CI_low, 1), ", ",
                              round(CI_high, 1), ")"),
          SD = round(SD, 1))%>% 
-  select(Coefficient, Estimate, `95% HDPI`, SD, Rhat)
+  select(Coefficient, Estimate, `95% HDI`, SD, Rhat)
 
 table_enth <- rbind(sum_bancova_enth$fixed, sum_bancova_enth$spec_pars) %>% 
   cbind(ci_bancova_enth) %>%
@@ -488,10 +488,10 @@ table_enth <- rbind(sum_bancova_enth$fixed, sum_bancova_enth$spec_pars) %>%
   mutate(Coefficient = c("Intercept", "pk1", "Group", "sigma"),
          Estimate = round(Estimate, 1),
          Rhat = round(Rhat, 2),
-         `95% HDPI` = paste0("(", round(CI_low, 1), ", ",
+         `95% HDI` = paste0("(", round(CI_low, 1), ", ",
                              round(CI_high, 1), ")"),
          SD = round(SD, 1))%>% 
-  select(Coefficient, Estimate, `95% HDPI`, SD, Rhat)
+  select(Coefficient, Estimate, `95% HDI`, SD, Rhat)
 
 table_meds <- rbind(sum_bancova_meds$fixed, sum_bancova_meds$spec_pars) %>% 
   cbind(ci_bancova_meds) %>% 
@@ -501,10 +501,10 @@ table_meds <- rbind(sum_bancova_meds$fixed, sum_bancova_meds$spec_pars) %>%
                          "Chronicity", "sigma"),
          Estimate = round(Estimate, 1),
          Rhat = round(Rhat, 2),
-         `95% HDPI` = paste0("(", round(CI_low, 1), ", ",
+         `95% HDI` = paste0("(", round(CI_low, 1), ", ",
                              round(CI_high, 1), ")"),
          SD = round(SD, 1))%>% 
-  select(Coefficient, Estimate, `95% HDPI`, SD, Rhat)
+  select(Coefficient, Estimate, `95% HDI`, SD, Rhat)
 
 ## Summaries just for the Rhat value (double iters)
 
