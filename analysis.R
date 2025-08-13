@@ -17,13 +17,14 @@ vickers <- read_xls("Vickers2006.xls", sheet = 3)
 vickers_score <- vickers %>%
   mutate(pk_change = pk5 - pk1) %>% 
   select(id, pk1, pk5, group, pk_change) %>% 
-  drop_na()
+  drop_na() %>% 
+  rename("pre" = "pk1")
 
 vickers_score_long <- vickers_score %>% 
-  pivot_longer(cols = c(pk1, pk5), names_to = "time", values_to = "score") %>% 
+  pivot_longer(cols = c(pre, pk5), names_to = "time", values_to = "score") %>% 
   mutate(
     time = case_when(
-      time == "pk1" ~ 0,
+      time == "pre" ~ 0,
       .default = 1
     ))
 
@@ -33,15 +34,24 @@ vickers_meds <- vickers %>%
          chronicity) %>% 
   drop_na()
 
-# Frequentist analyses
+## Frequentist analyses
+
+## Group means
+
+vickers_means <- vickers_score %>% 
+  group_by(group) %>% 
+  summarise(mean_pre = mean(pre), mean_post = mean(pk5)) %>% 
+  mutate(mean_pre = round(mean_pre, 1), mean_post = round(mean_post, 1))
+
+## Frequentist models
 
 anova_change <- lm(pk_change ~ group, data = vickers_score)
 
-fancova1 <- lm(pk5 ~ pk1 + group, data = vickers_score)
+fancova1 <- lm(pk5 ~ pre + group, data = vickers_score)
 fancova2 <- lm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                + chronicity, data = vickers_meds)
 
-fancova_inter <- lm(pk5 ~ pk1 + group + pk1:group, data = vickers_score)
+fancova_inter <- lm(pk5 ~ pre + group + pre:group, data = vickers_score)
 
 lmm <- lmer(score ~ time * group + (1 | id), data = vickers_score_long)
 
@@ -169,27 +179,28 @@ ggsave(
 
 ## brms model fitting
 
-b_ancova_neu <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
+b_ancova_neu <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                     thin = 1, cores = 8, iter = 20000, warmup = 10000,
                     prior = c(prior(normal(0, 100), class = "Intercept"),
-                              prior(normal(0, 100), class = "b", coef = "pk1"),
-                              prior(normal(0, 100), class = "b", coef = "group"),
+                              prior(normal(0, 100), class = "b", coef = "pre"),
+                              prior(normal(0, 100), class = "b",
+                                    coef = "group"),
                               prior(cauchy(0, 8), class = "sigma")),
                     seed = 157, chains = 4)
 
-b_ancova_scep <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
+b_ancova_scep <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                      thin = 1, cores = 8, iter = 20000, warmup = 10000,
                      prior = c(prior(normal(0, 100), class = "Intercept"),
-                               prior(normal(0, 100), class = "b", coef = "pk1"),
+                               prior(normal(0, 100), class = "b", coef = "pre"),
                                prior(normal(0, 0.5), class = "b",
                                      coef = "group"),
                                prior(cauchy(0, 8), class = "sigma")),
                      seed = 157, chains = 4)
 
-b_ancova_enth <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
+b_ancova_enth <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                      thin = 1, cores = 8, iter = 20000, warmup = 10000,
                      prior = c(prior(normal(0, 100), class = "Intercept"),
-                               prior(normal(0, 100), class = "b", coef = "pk1"),
+                               prior(normal(0, 100), class = "b", coef = "pre"),
                                prior(normal(-10, 0.5), class = "b",
                                      coef = "group"),
                                prior(cauchy(0, 8), class = "sigma")),
@@ -202,34 +213,38 @@ b_ancova_meds <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                      prior = c(prior(normal(0, 100), class = "Intercept"),
                                prior(normal(0, 100), class = "b",
                                      coef = "painmedspk1"),
-                               prior(normal(0, 100), class = "b", coef = "group"),
+                               prior(normal(0, 100), class = "b",
+                                     coef = "group"),
                                prior(cauchy(0, 8), class = "sigma")),
                      seed = 157, chains = 4)
 
 ## Doubled iters
 
-b_ancova_neu_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
+b_ancova_neu_x2 <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                        thin = 1, cores = 8, iter = 40000, warmup = 20000,
                        prior = c(prior(normal(0, 100), class = "Intercept"),
-                                 prior(normal(0, 100), class = "b", coef = "pk1"),
+                                 prior(normal(0, 100), class = "b",
+                                       coef = "pre"),
                                  prior(normal(0, 100), class = "b",
                                        coef = "group"),
                                  prior(cauchy(0, 8), class = "sigma")),
                        seed = 157, chains = 4)
 
-b_ancova_scep_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
+b_ancova_scep_x2 <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                         thin = 1, cores = 8, iter = 40000, warmup = 20000,
                         prior = c(prior(normal(0, 100), class = "Intercept"),
-                                  prior(normal(0, 100), class = "b", coef = "pk1"),
+                                  prior(normal(0, 100), class = "b",
+                                        coef = "pre"),
                                   prior(normal(0, 0.5), class = "b",
                                         coef = "group"),
                                   prior(cauchy(0, 8), class = "sigma")),
                         seed = 157, chains = 4)
 
-b_ancova_enth_x2 <- brm(pk5 ~ pk1 + group, data = vickers_score, silent = 1,
+b_ancova_enth_x2 <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                         thin = 1, cores = 8, iter = 40000, warmup = 20000,
                         prior = c(prior(normal(0, 100), class = "Intercept"),
-                                  prior(normal(0, 100), class = "b", coef = "pk1"),
+                                  prior(normal(0, 100), class = "b",
+                                        coef = "pre"),
                                   prior(normal(-10, 0.5), class = "b",
                                         coef = "group"),
                                   prior(cauchy(0, 8), class = "sigma")),
@@ -242,7 +257,8 @@ b_ancova_meds_x2 <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
                         prior = c(prior(normal(0, 100), class = "Intercept"),
                                   prior(normal(0, 100), class = "b",
                                         coef = "painmedspk1"),
-                                  prior(normal(0, 100), class = "b", coef = "group"),
+                                  prior(normal(0, 100), class = "b",
+                                        coef = "group"),
                                   prior(cauchy(0, 8), class = "sigma")),
                         seed = 157, chains = 4)
 
