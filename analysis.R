@@ -28,6 +28,18 @@ vickers_score_long <- vickers_score %>%
       .default = 1
     ))
 
+##Plotting with interaction
+
+plot(pk5 ~ pre, data = vickers_score,
+     col = ifelse(vickers_score$group == "1", "red", "blue"),
+     pch = 16, xlab = "Baseline (Pre)", ylab = "Outcome (Post)")
+
+xseq <- seq(min(vickers_score$pre), max(vickers_score$pk5), length.out = 100)
+
+lines(xseq, 0.4 + 0.8 * xseq, col = "blue", lwd = 2)
+
+lines(xseq, (0.4 + 1.9) + (0.8 + -0.3) * xseq, col = "red", lwd = 2)
+
 ## Frequentist analyses
 
 ## Group means
@@ -76,7 +88,7 @@ table_anova1 <- bind_cols(sum_anova$coefficients, ci_anova) %>%
 table_ancova1 <- bind_cols(sum_fancova1$coefficients, ci_fancova1) %>% 
   tibble() %>% 
   rename("P-Value" = "Pr(>|t|)") %>%
-  mutate(Coefficient = c("Intercept", "pk1", "Group"),
+  mutate(Coefficient = c("Intercept", "pre", "Group"),
          `95% CI` = paste0("(", round(`2.5 %`, 1), ", ",
                            round(`97.5 %`, 1), ")"),
          Estimate = round(Estimate, 1),
@@ -87,7 +99,7 @@ table_ancova_inter <- bind_cols(sum_fancova_inter$coefficients,
                                 ci_fancova_inter) %>% 
   tibble() %>% 
   rename("P-Value" = "Pr(>|t|)") %>%
-  mutate(Coefficient = c("Intercept", "pk1", "Group", "pk1:Group"),
+  mutate(Coefficient = c("Intercept", "pre", "Group", "pk1:Group"),
          `95% CI` = paste0("(", round(`2.5 %`, 1), ", ",
                            round(`97.5 %`, 1), ")"),
          Estimate = round(Estimate, 1),
