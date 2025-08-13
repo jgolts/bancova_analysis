@@ -138,17 +138,17 @@ df_sigma <- tibble(x = x_vals_sigma, y = dcauchy(x_vals_sigma, 0, 8))
 
 priorplot_neu <- ggplot(df_neu, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
-  labs(x = "Coefficient",
+  labs(x = "Neutral",
        y = "Probability density")
 
 priorplot_scep <- ggplot(df_scep, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
-  labs(x = "Treatment effect",
+  labs(x = "Sceptical",
        y = "Probability density")
 
 priorplot_enth <- ggplot(df_enth, aes(x = x, y = y)) +
   geom_line(linewidth = 1.2) + 
-  labs(x = "Treatment effect",
+  labs(x = "Enthusiastic",
        y = "Probability density")
 
 priorplot_sigma <- ggplot(df_sigma, aes(x = x, y = y)) +
