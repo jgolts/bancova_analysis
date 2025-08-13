@@ -28,12 +28,6 @@ vickers_score_long <- vickers_score %>%
       .default = 1
     ))
 
-vickers_meds <- vickers %>% 
-  mutate(painmedspk1 = painmedspk1/4, painmedspk5 = painmedspk5/4) %>%
-  select(id, painmedspk1, painmedspk5, group, age, sex, migraine,
-         chronicity) %>% 
-  drop_na()
-
 ## Frequentist analyses
 
 ## Group means
@@ -48,8 +42,6 @@ vickers_means <- vickers_score %>%
 anova_change <- lm(pk_change ~ group, data = vickers_score)
 
 fancova1 <- lm(pk5 ~ pre + group, data = vickers_score)
-fancova2 <- lm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
-               + chronicity, data = vickers_meds)
 
 fancova_inter <- lm(pk5 ~ pre + group + pre:group, data = vickers_score)
 
@@ -60,7 +52,6 @@ lmm <- lmer(score ~ time * group + (1 | id), data = vickers_score_long)
 sum_anova <- summary(anova_change)
 
 sum_fancova1 <- summary(fancova1)
-sum_fancova2 <- summary(fancova2)
 sum_fancova_inter <- summary(fancova_inter)
 
 sum_lmm <- summary(lmm, ddf = "Kenward-Roger")
@@ -68,7 +59,6 @@ sum_lmm <- summary(lmm, ddf = "Kenward-Roger")
 ci_anova <- confint(anova_change)
 
 ci_fancova1 <- confint(fancova1)
-ci_fancova2 <- confint(fancova2)
 ci_fancova_inter <- confint(fancova_inter)
 
 ci_lmm <- model_parameters(lmm, ci_method = "kenward")
@@ -87,17 +77,6 @@ table_ancova1 <- bind_cols(sum_fancova1$coefficients, ci_fancova1) %>%
   tibble() %>% 
   rename("P-Value" = "Pr(>|t|)") %>%
   mutate(Coefficient = c("Intercept", "pk1", "Group"),
-         `95% CI` = paste0("(", round(`2.5 %`, 1), ", ",
-                           round(`97.5 %`, 1), ")"),
-         Estimate = round(Estimate, 1),
-         `P-Value` = round(`P-Value`, 4)) %>% 
-  select(Coefficient, Estimate, `P-Value`, `95% CI`)
-
-table_ancova2 <- bind_cols(sum_fancova2$coefficients, ci_fancova2) %>% 
-  tibble() %>% 
-  rename("P-Value" = "Pr(>|t|)") %>%
-  mutate(Coefficient = c("Intercept", "pk1", "Group", "Age", "Sex", "Migraine",
-                         "Chronicity"),
          `95% CI` = paste0("(", round(`2.5 %`, 1), ", ",
                            round(`97.5 %`, 1), ")"),
          Estimate = round(Estimate, 1),
@@ -130,7 +109,6 @@ table_lmm <- bind_cols(sum_lmm$coefficients, drop_na(as_tibble(ci_lmm$CI_low)),
 ## sd(y) for models
 
 sd(vickers_score$pk5)
-sd(vickers_meds$painmedspk5)
 
 ## Prior plots
 
@@ -206,18 +184,6 @@ b_ancova_enth <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                                prior(cauchy(0, 8), class = "sigma")),
                      seed = 157, chains = 4)
 
-b_ancova_meds <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
-                     + chronicity, data = vickers_meds,
-                     silent = 1, thin = 1, cores = 8, iter = 20000,
-                     warmup = 10000,
-                     prior = c(prior(normal(0, 100), class = "Intercept"),
-                               prior(normal(0, 100), class = "b",
-                                     coef = "painmedspk1"),
-                               prior(normal(0, 100), class = "b",
-                                     coef = "group"),
-                               prior(cauchy(0, 8), class = "sigma")),
-                     seed = 157, chains = 4)
-
 ## Doubled iters
 
 b_ancova_neu_x2 <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
@@ -246,18 +212,6 @@ b_ancova_enth_x2 <- brm(pk5 ~ pre + group, data = vickers_score, silent = 1,
                                   prior(normal(0, 100), class = "b",
                                         coef = "pre"),
                                   prior(normal(-10, 0.5), class = "b",
-                                        coef = "group"),
-                                  prior(cauchy(0, 8), class = "sigma")),
-                        seed = 157, chains = 4)
-
-b_ancova_meds_x2 <- brm(painmedspk5 ~ painmedspk1 + group + age + sex + migraine
-                        + chronicity, data = vickers_meds,
-                        silent = 1, thin = 1, cores = 8, iter = 40000,
-                        warmup = 20000,
-                        prior = c(prior(normal(0, 100), class = "Intercept"),
-                                  prior(normal(0, 100), class = "b",
-                                        coef = "painmedspk1"),
-                                  prior(normal(0, 100), class = "b",
                                         coef = "group"),
                                   prior(cauchy(0, 8), class = "sigma")),
                         seed = 157, chains = 4)
@@ -293,15 +247,6 @@ ggsave(
   dpi = 600
 )
 
-mcmc_plot(b_ancova_meds, type = "trace")
-
-ggsave(
-  "traceplot_meds.png",
-  height = 4,
-  width = 6.5,
-  dpi = 600
-)
-
 mcmc_plot(b_ancova_neu_x2, type = "trace")
 
 ggsave(
@@ -324,15 +269,6 @@ mcmc_plot(b_ancova_enth_x2, type = "trace")
 
 ggsave(
   "traceplot_enth_x2.png",
-  height = 4,
-  width = 6.5,
-  dpi = 600
-)
-
-mcmc_plot(b_ancova_meds_x2, type = "trace")
-
-ggsave(
-  "traceplot_meds_x2.png",
   height = 4,
   width = 6.5,
   dpi = 600
@@ -367,15 +303,6 @@ ggsave(
   dpi = 600
 )
 
-mcmc_plot(b_ancova_meds, type = "hist")
-
-ggsave(
-  "histplot_meds.png",
-  height = 4,
-  width = 6.5,
-  dpi = 600
-)
-
 ## Autocorrelation
 
 mcmc_plot(b_ancova_neu, type = "acf")
@@ -400,15 +327,6 @@ mcmc_plot(b_ancova_enth, type = "acf")
 
 ggsave(
   "acfplot_enth.png",
-  height = 4,
-  width = 6.5,
-  dpi = 600
-)
-
-mcmc_plot(b_ancova_meds, type = "acf")
-
-ggsave(
-  "acfplot_meds.png",
   height = 4,
   width = 6.5,
   dpi = 600
@@ -542,22 +460,17 @@ mean(draws_bancova_meds$b_group < 0)
 ## Preparation for posterior visualisation
 
 draws_neu_long <- draws_bancova_neu %>% 
-  select(b_Intercept, b_pk1, b_group, sigma) %>% 
+  select(b_Intercept, b_pre, b_group, sigma) %>% 
   pivot_longer(cols = everything(),
                names_to = "Parameter", values_to = "Value")
 
 draws_scep_long <- draws_bancova_scep %>% 
-  select(b_Intercept, b_pk1, b_group, sigma) %>% 
+  select(b_Intercept, b_pre, b_group, sigma) %>% 
   pivot_longer(cols = everything(),
                names_to = "Parameter", values_to = "Value")
 
 draws_enth_long <- draws_bancova_enth %>% 
-  select(b_Intercept, b_pk1, b_group, sigma) %>% 
-  pivot_longer(cols = everything(),
-               names_to = "Parameter", values_to = "Value")
-
-draws_meds_long <- draws_bancova_meds %>% 
-  select(b_Intercept, b_painmedspk1, b_group, sigma) %>% 
+  select(b_Intercept, b_pre, b_group, sigma) %>% 
   pivot_longer(cols = everything(),
                names_to = "Parameter", values_to = "Value")
 
@@ -620,16 +533,6 @@ ggsave(
   dpi = 600
 )
 
-plotPosterior(draws_meds_long, "b_group")
-
-ggsave(
-  "teplot_meds.png",
-  height = 4,
-  width = 6.5,
-  dpi = 600
-)
-
 plotPosteriorCDF(draws_neu_long, "b_group")
 plotPosteriorCDF(draws_scep_long, "b_group")
 plotPosteriorCDF(draws_enth_long, "b_group")
-plotPosteriorCDF(draws_meds_long, "b_group")
