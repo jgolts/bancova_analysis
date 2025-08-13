@@ -116,6 +116,8 @@ lines(xseq, 0.4 + 0.8 * xseq, col = "blue", lwd = 2)
 
 lines(xseq, (0.4 + 1.9) + (0.8 + -0.3) * xseq, col = "red", lwd = 2)
 
+lines(xseq, 0.4 + 0.8 * xseq - 1.9, col = "orange", lwd = 2)
+
 ## Bayesian analyses
 
 ## sd(y) for models
