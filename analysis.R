@@ -334,15 +334,16 @@ ggsave(
 
 ## Bayesian results tables
 
-draws_bancova_neu <- as_draws_df(b_ancova_neu)
-draws_bancova_scep <- as_draws_df(b_ancova_scep)
-draws_bancova_enth <- as_draws_df(b_ancova_enth)
-draws_bancova_meds <- as_draws_df(b_ancova_meds)
+draws_bancova_neu <- as_draws_df(b_ancova_neu) %>% 
+  mutate(model = "Neutral")
+draws_bancova_scep <- as_draws_df(b_ancova_scep) %>% 
+  mutate(model = "Sceptical")
+draws_bancova_enth <- as_draws_df(b_ancova_enth) %>% 
+  mutate(model = "Enthusiastic")
 
 sum_bancova_neu <- summary(b_ancova_neu)
 sum_bancova_scep <- summary(b_ancova_scep)
 sum_bancova_enth <- summary(b_ancova_enth)
-sum_bancova_meds <- summary(b_ancova_meds)
 
 sd_bancova_neu <- draws_bancova_neu %>% 
   select(b_Intercept:sigma) %>% 
@@ -359,11 +360,6 @@ sd_bancova_enth <- draws_bancova_enth %>%
   sapply(sd) %>%
   as_tibble() %>% 
   rename("SD" = "value")
-sd_bancova_meds <- draws_bancova_meds %>% 
-  select(b_Intercept:sigma) %>% 
-  sapply(sd) %>% 
-  as_tibble() %>% 
-  rename("SD" = "value")
 
 sigma_ci_neu <- bayestestR::hdi(draws_bancova_neu$sigma) %>% 
   mutate(Parameter = "sigma") %>% 
@@ -372,9 +368,6 @@ sigma_ci_scep <- bayestestR::hdi(draws_bancova_scep$sigma) %>%
   mutate(Parameter = "sigma") %>% 
   select(Parameter, CI, CI_low, CI_high)
 sigma_ci_enth <- bayestestR::hdi(draws_bancova_enth$sigma) %>% 
-  mutate(Parameter = "sigma") %>% 
-  select(Parameter, CI, CI_low, CI_high)
-sigma_ci_meds <- bayestestR::hdi(draws_bancova_meds$sigma) %>% 
   mutate(Parameter = "sigma") %>% 
   select(Parameter, CI, CI_low, CI_high)
 
@@ -387,9 +380,6 @@ ci_bancova_scep <- bayestestR::hdi(b_ancova_scep) %>%
 ci_bancova_enth <- bayestestR::hdi(b_ancova_enth) %>% 
   select(Parameter, CI, CI_low, CI_high) %>% 
   rbind(sigma_ci_enth)
-ci_bancova_meds <- bayestestR::hdi(b_ancova_meds) %>% 
-  select(Parameter, CI, CI_low, CI_high) %>% 
-  rbind(sigma_ci_meds)
 
 table_neu <- rbind(sum_bancova_neu$fixed, sum_bancova_neu$spec_pars) %>% 
   cbind(ci_bancova_neu) %>%
@@ -427,25 +417,11 @@ table_enth <- rbind(sum_bancova_enth$fixed, sum_bancova_enth$spec_pars) %>%
          SD = round(SD, 1))%>% 
   select(Coefficient, Estimate, `95% HDI`, SD, Rhat)
 
-table_meds <- rbind(sum_bancova_meds$fixed, sum_bancova_meds$spec_pars) %>% 
-  cbind(ci_bancova_meds) %>% 
-  cbind(sd_bancova_meds) %>% 
-  tibble() %>% 
-  mutate(Coefficient = c("Intercept", "pk1", "Group", "Age", "Sex", "Migraine",
-                         "Chronicity", "sigma"),
-         Estimate = round(Estimate, 1),
-         Rhat = round(Rhat, 2),
-         `95% HDI` = paste0("(", round(CI_low, 1), ", ",
-                             round(CI_high, 1), ")"),
-         SD = round(SD, 1))%>% 
-  select(Coefficient, Estimate, `95% HDI`, SD, Rhat)
-
 ## Summaries just for the Rhat value (double iters)
 
 summary(b_ancova_neu_x2)
 summary(b_ancova_scep_x2)
 summary(b_ancova_enth_x2)
-summary(b_ancova_meds_x2)
 
 ## Posterior probabilities
 
@@ -455,9 +431,10 @@ mean(draws_bancova_scep$b_group < 0)
 
 mean(draws_bancova_enth$b_group < 0)
 
-mean(draws_bancova_meds$b_group < 0)
-
 ## Preparation for posterior visualisation
+
+draws_all <- bind_rows(draws_bancova_neu, draws_bancova_scep,
+                       draws_bancova_enth)
 
 draws_neu_long <- draws_bancova_neu %>% 
   select(b_Intercept, b_pre, b_group, sigma) %>% 
@@ -474,6 +451,11 @@ draws_enth_long <- draws_bancova_enth %>%
   pivot_longer(cols = everything(),
                names_to = "Parameter", values_to = "Value")
 
+draws_all_long <- draws_all %>% 
+  select(b_Intercept, b_pre, b_group, sigma, model) %>% 
+  pivot_longer(cols = b_Intercept:sigma,
+               names_to = "Parameter", values_to = "Value")
+
 ## Group posterior plots
 
 plotPosterior <- function(df, param) {
@@ -486,7 +468,23 @@ plotPosterior <- function(df, param) {
                  point_interval = mean_hdi) +
     scale_fill_brewer(na.translate = F, palette = "YlOrRd") +
     labs(title = "Posterior PDF with HDI",
-         x = paste0(param, " Estimate"),
+         x = paste0("Estimated difference in headache score at 1 year"),
+         y = NULL,
+         fill = "HDI")
+}
+
+plotPosteriorTEline <- function(df, param) {
+  
+  df <- df %>%
+    filter(Parameter == param)
+  
+  ggplot(data = df, aes(x = Value, y = Parameter)) +
+    stat_halfeye(aes(fill = after_stat(level)), .width = c(.95, 1),
+                 point_interval = mean_hdi) +
+    geom_vline(xintercept = 0) +
+    scale_fill_brewer(na.translate = F, palette = "YlOrRd") +
+    labs(title = "Posterior PDF with HDI",
+         x = paste0("Estimated difference in headache score at 1 year"),
          y = NULL,
          fill = "HDI")
 }
@@ -499,6 +497,7 @@ plotPosteriorCDF <- function(df, param) {
   ggplot(data = df, aes(x = Parameter, y = Value)) +
     stat_ccdfinterval(aes(fill = after_stat(level)), .width = c(.95, 1),
                       point_interval = mean_hdi, justification = 1) +
+    geom_vline(xintercept = 0) +
     scale_fill_brewer(na.translate = F, palette = "YlOrRd") +
     labs(title = "Posterior CDF with HDI",
          x = paste0(param, " Estimate"),
@@ -506,7 +505,23 @@ plotPosteriorCDF <- function(df, param) {
          fill = "HDI")
 }
 
-plotPosterior(draws_neu_long, "b_group")
+plotPosteriorsTogether <- function(df, param) {
+  
+  df <- df %>%
+    filter(Parameter == param)
+  
+  ggplot(data = df, aes(x = Value, y = model)) +
+    stat_halfeye(aes(fill = after_stat(level)), .width = c(.95, 1),
+                 point_interval = mean_hdi) +
+    geom_vline(xintercept = 0) +
+    scale_fill_brewer(na.translate = F, palette = "YlOrRd") +
+    labs(title = "Posterior PDF with HDI",
+         x = paste0("Estimated difference in headache score at 1 year"),
+         y = NULL,
+         fill = "HDI")
+}
+
+plotPosteriorTEline(draws_neu_long, "b_group")
 
 ggsave(
   "teplot_neu.png",
@@ -515,7 +530,7 @@ ggsave(
   dpi = 600
 )
 
-plotPosterior(draws_scep_long, "b_group")
+plotPosteriorTEline(draws_scep_long, "b_group")
 
 ggsave(
   "teplot_scep.png",
@@ -528,6 +543,15 @@ plotPosterior(draws_enth_long, "b_group")
 
 ggsave(
   "teplot_enth.png",
+  height = 4,
+  width = 6.5,
+  dpi = 600
+)
+
+plotPosteriorsTogether(draws_all_long, "b_group")
+
+ggsave(
+  "teplot_all.png",
   height = 4,
   width = 6.5,
   dpi = 600
