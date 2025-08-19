@@ -116,7 +116,7 @@ lines(xseq, 0.4 + 0.8 * xseq, col = "blue", lwd = 2)
 
 lines(xseq, (0.4 + 1.9) + (0.8 + -0.3) * xseq, col = "red", lwd = 2)
 
-lines(xseq, 0.4 + 0.8 * xseq - 1.9, col = "orange", lwd = 2)
+lines(xseq, 3.5 + 0.7 * xseq - 4.6, col = "orange", lwd = 2)
 
 ## Bayesian analyses
 
@@ -440,10 +440,13 @@ summary(b_ancova_enth_x2)
 ## Posterior probabilities
 
 mean(draws_bancova_neu$b_group < 0)
+mean(draws_bancova_neu$b_group < -3)
 
 mean(draws_bancova_scep$b_group < 0)
+mean(draws_bancova_scep$b_group < -3)
 
 mean(draws_bancova_enth$b_group < 0)
+mean(draws_bancova_enth$b_group < -3)
 
 ## Preparation for posterior visualisation
 
