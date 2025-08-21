@@ -30,11 +30,12 @@ vickers_score_long <- vickers_score %>%
 
 ## Frequentist analyses
 
-## Group means
+## Dataset summary
 
-vickers_means <- vickers_score %>% 
+vickers_sum <- vickers %>% 
   group_by(group) %>% 
-  summarise(mean_pre = mean(pre), mean_post = mean(pk5)) %>% 
+  summarise(npat = n(), ncomp = sum(!is.na(pk5)),
+            mean_pre = mean(pk1), mean_post = mean(pk5)) %>% 
   mutate(mean_pre = round(mean_pre, 1), mean_post = round(mean_post, 1))
 
 ## Frequentist models
